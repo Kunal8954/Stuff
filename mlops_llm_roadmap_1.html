@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLOps / LLM Engineer Roadmap</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-border: #262b36;
+    --text: #e6e8ec;
+    --text-dim: #9aa1ac;
+    --accent: #5b8def;
+    --accent-soft: rgba(91, 141, 239, 0.15);
+    --done: #3fb27f;
+    --done-soft: rgba(63, 178, 127, 0.15);
+    --track-bg: #1f232c;
+    --anchor-bg: rgba(91, 141, 239, 0.07);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --panel-border: #e3e5ea;
+      --text: #1c1f26;
+      --text-dim: #666e7c;
+      --accent: #3b6fd6;
+      --accent-soft: rgba(59, 111, 214, 0.10);
+      --done: #2f9e6b;
+      --done-soft: rgba(47, 158, 107, 0.10);
+      --track-bg: #eceef2;
+      --anchor-bg: rgba(59, 111, 214, 0.05);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 16px 80px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { margin-bottom: 24px; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--text-dim); font-size: 0.92rem; margin: 0; }
+
+  .progress-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 20px 0 16px;
+  }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+  .progress-top strong { color: var(--text); font-size: 1rem; }
+  .track { height: 8px; background: var(--track-bg); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); border-radius: 999px; width: 0%; transition: width 0.3s ease; }
+  .meta-row {
+    display: flex; gap: 18px; margin-top: 14px;
+    font-size: 0.82rem; color: var(--text-dim); flex-wrap: wrap;
+  }
+  .meta-row span b { color: var(--text); }
+
+  .anchors {
+    background: var(--anchor-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 26px;
+  }
+  .anchors h3 {
+    margin: 0 0 4px; font-size: 0.95rem;
+  }
+  .anchors p { margin: 0 0 12px; font-size: 0.85rem; color: var(--text-dim); }
+  .anchors ul { margin: 0; padding: 0; list-style: none; }
+  .anchors li { font-size: 0.87rem; padding: 5px 0; }
+  .anchors a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .anchors a:hover { text-decoration: underline; }
+  .anchors .covers { color: var(--text-dim); font-size: 0.8rem; }
+
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .stage.done { border-color: var(--done); }
+  .stage-head { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; cursor: pointer; }
+  .checkbox {
+    flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid var(--panel-border); margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 14px; font-weight: 700; transition: all 0.15s ease;
+  }
+  .stage.done .checkbox { background: var(--done); border-color: var(--done); color: #fff; }
+  .stage-title-row { flex: 1; min-width: 0; }
+  .stage-num {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--accent); font-weight: 600;
+  }
+  .stage.done .stage-num { color: var(--done); }
+  .stage-title { font-size: 1.02rem; font-weight: 600; margin: 2px 0 0; }
+  .stage-time {
+    flex: 0 0 auto; font-size: 0.8rem; color: var(--text-dim);
+    background: var(--track-bg); padding: 4px 10px; border-radius: 999px;
+    white-space: nowrap; margin-top: 2px;
+  }
+  .chevron { flex: 0 0 auto; color: var(--text-dim); margin-top: 4px; transition: transform 0.2s ease; font-size: 0.8rem; }
+  .stage.open .chevron { transform: rotate(90deg); }
+
+  .stage-body { display: none; padding: 0 18px 18px 54px; }
+  .stage.open .stage-body { display: block; }
+  .stage-body h4 {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-dim); margin: 16px 0 8px;
+  }
+  .stage-body h4:first-child { margin-top: 4px; }
+  .topics { display: flex; flex-wrap: wrap; gap: 6px; }
+  .topics span {
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 0.8rem; padding: 4px 10px; border-radius: 999px;
+  }
+  .resources { margin: 0; padding: 0; list-style: none; }
+  .resources li {
+    font-size: 0.88rem; padding: 8px 0;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .resources li:last-child { border-bottom: none; }
+  .resources a { color: var(--accent); text-decoration: none; flex: 1; }
+  .resources a:hover { text-decoration: underline; }
+  .rtype {
+    flex: 0 0 auto; width: 66px;
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em;
+    font-weight: 700; color: var(--text-dim);
+  }
+  .why { font-size: 0.86rem; color: var(--text-dim); margin: 0; }
+  .new-tag {
+    display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--done); background: var(--done-soft); padding: 2px 7px;
+    border-radius: 5px; margin-left: 8px; text-transform: uppercase; vertical-align: middle;
+  }
+  footer { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin-top: 30px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>MLOps / LLM Engineer Roadmap</h1>
+    <p class="sub">Click a stage to expand its topics and resources. Check stages off as you finish them. Items tagged <span class="new-tag" style="margin-left:0">new</span> were added to close gaps in the original sequence.</p>
+  </header>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span><strong id="doneCount">0</strong> / <span id="totalCount">0</span> stages complete</span>
+      <span id="pct">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="meta-row">
+      <span>Total effort: <b>~220–310 hrs</b></span>
+      <span>At 2 hrs/day: <b>~4–5.5 months</b></span>
+      <span>Stages: <b id="stageCount">0</b></span>
+      <span>Resources: <b id="resCount">0</b></span>
+    </div>
+  </div>
+
+  <div class="anchors">
+    <h3>Anchor courses</h3>
+    <p>Three free courses that each span many stages at once — cheaper than stitching together per-topic tutorials.</p>
+    <ul>
+      <li><a href="https://github.com/DataTalksClub/mlops-zoomcamp" target="_blank" rel="noopener">MLOps Zoomcamp — DataTalks.Club</a> <span class="covers">· free, cohort-based · covers Docker, MLflow, CI/CD, deployment, monitoring</span></li>
+      <li><a href="https://madewithml.com/courses/mlops/" target="_blank" rel="noopener">Made With ML — MLOps Course</a> <span class="covers">· free · covers testing, CI/CD, experiment tracking, serving</span></li>
+      <li><a href="https://course.fast.ai/" target="_blank" rel="noopener">fast.ai — Practical Deep Learning</a> <span class="covers">· free · covers the ML fundamentals stage end-to-end</span></li>
+    </ul>
+  </div>
+
+  <div id="stages"></div>
+
+  <footer>
+    Built for Kunal — Aug 2026 · Durations assume ~8–10 hrs/week; at 2 hrs/day daily the whole track runs ~16–22 weeks.<br>
+    Prefer the free resources first — the paid ones are listed only where no good free equivalent exists.
+  </footer>
+</div>
+
+<script>
+const stages = [
+  {
+    title: "Git",
+    time: "3–5 days",
+    topics: ["branching", "merging", "rebasing", "conflict resolution", "PR workflow"],
+    why: "Version control is the substrate everything else sits on — CI/CD, collaboration, and rollback all depend on it.",
+    resources: [
+      ["Practice", "Learn Git Branching (visual, interactive)", "https://learngitbranching.js.org/"],
+      ["Practice", "GitHub Skills — guided exercises", "https://skills.github.com/"],
+      ["Book", "Pro Git (free, official)", "https://git-scm.com/book/en/v2"],
+      ["Reference", "Dangit, Git!? — undoing mistakes", "https://dangitgit.com/"]
+    ]
+  },
+  {
+    title: "Linux",
+    time: "1–2 weeks",
+    topics: ["shell scripting", "file permissions", "process management", "networking basics", "systemd"],
+    why: "Nearly every deployment target — Docker, AWS, Kubernetes — is Linux underneath. Comfort in the shell removes friction everywhere downstream.",
+    resources: [
+      ["Course", "Linux Journey", "https://linuxjourney.com/"],
+      ["Course", "MIT — The Missing Semester", "https://missing.csail.mit.edu/"],
+      ["Practice", "OverTheWire: Bandit (wargame)", "https://overthewire.org/wargames/bandit/"],
+      ["Book", "The Linux Command Line (free)", "https://linuxcommand.org/tlcl.php"],
+      ["Reference", "ExplainShell — decode any command", "https://explainshell.com/"]
+    ]
+  },
+  {
+    title: "Python & ML Fundamentals",
+    time: "4–6 weeks",
+    topics: ["NumPy/Pandas", "supervised vs unsupervised", "train/test split", "evaluation metrics", "PyTorch basics", "fine-tuning"],
+    why: "The original chain jumps straight to serving and tracking models without covering how to build one. This is the biggest gap — you need something worth deploying before deployment tooling matters.",
+    isNew: true,
+    resources: [
+      ["Course", "Andrew Ng — ML Specialization (audit free)", "https://www.coursera.org/specializations/machine-learning-introduction"],
+      ["Course", "fast.ai — Practical Deep Learning", "https://course.fast.ai/"],
+      ["Course", "Hugging Face — NLP Course", "https://huggingface.co/learn/nlp-course"],
+      ["Docs", "PyTorch official tutorials", "https://pytorch.org/tutorials/"],
+      ["Docs", "scikit-learn user guide", "https://scikit-learn.org/stable/user_guide.html"],
+      ["Practice", "Kaggle Learn — short applied tracks", "https://www.kaggle.com/learn"]
+    ]
+  },
+  {
+    title: "SQL / Databases",
+    time: "1–2 weeks",
+    topics: ["joins", "indexing", "query plans", "PostgreSQL", "basic NoSQL"],
+    why: "Almost every ML or backend pipeline reads from and writes to a database. Missing from the original chain entirely — though if you're already on a SQL-heavy track, this stage is largely free.",
+    isNew: true,
+    resources: [
+      ["Course", "Mode — SQL Tutorial", "https://mode.com/sql-tutorial/"],
+      ["Practice", "SQLZoo", "https://sqlzoo.net/"],
+      ["Docs", "PostgreSQL official documentation", "https://www.postgresql.org/docs/"],
+      ["Reference", "Use The Index, Luke — indexing deep-dive", "https://use-the-index-luke.com/"]
+    ]
+  },
+  {
+    title: "FastAPI",
+    time: "1–2 weeks",
+    topics: ["REST design", "Pydantic models", "async endpoints", "dependency injection", "background tasks"],
+    why: "The framework you'll use to wrap models and pipelines behind an API.",
+    resources: [
+      ["Docs", "FastAPI official tutorial", "https://fastapi.tiangolo.com/tutorial/"],
+      ["Docs", "Pydantic documentation", "https://docs.pydantic.dev/"],
+      ["Course", "Real Python — FastAPI web APIs", "https://realpython.com/fastapi-python-web-apis/"],
+      ["Practice", "Full Stack FastAPI template (reference repo)", "https://github.com/fastapi/full-stack-fastapi-template"]
+    ]
+  },
+  {
+    title: "Testing (pytest)",
+    time: "3–5 days",
+    topics: ["unit tests", "fixtures", "mocking", "parametrize", "coverage"],
+    why: "CI/CD pipelines are only useful if there's something for them to run. Testing has to exist before automation of testing does.",
+    isNew: true,
+    resources: [
+      ["Docs", "pytest official documentation", "https://docs.pytest.org/en/stable/"],
+      ["Course", "Real Python — pytest guide", "https://realpython.com/pytest-python-testing/"],
+      ["Book", "Python Testing with pytest", "https://pythontest.com/pytest-book/"],
+      ["Docs", "pytest-cov — coverage reporting", "https://pytest-cov.readthedocs.io/"]
+    ]
+  },
+  {
+    title: "Docker",
+    time: "1–2 weeks",
+    topics: ["images vs containers", "Dockerfile best practices", "docker-compose", "multi-stage builds", "volumes"],
+    why: "Packages your API and model so it runs identically everywhere — the prerequisite for both cloud deployment and Kubernetes.",
+    resources: [
+      ["Docs", "Docker — Get Started guide", "https://docs.docker.com/get-started/"],
+      ["Practice", "Play with Docker — browser labs", "https://labs.play-with-docker.com/"],
+      ["Course", "Docker Curriculum", "https://docker-curriculum.com/"],
+      ["Reference", "Dockerfile best practices", "https://docs.docker.com/build/building/best-practices/"]
+    ]
+  },
+  {
+    title: "AWS",
+    time: "2–3 weeks",
+    topics: ["EC2", "S3", "IAM", "VPC basics", "SageMaker", "Lambda", "ECR"],
+    why: "Cloud infrastructure for storage, compute, and managed ML services.",
+    resources: [
+      ["Course", "AWS Skill Builder — free tier courses", "https://skillbuilder.aws/"],
+      ["Course", "freeCodeCamp — Cloud Practitioner", "https://www.freecodecamp.org/news/aws-certified-cloud-practitioner/"],
+      ["Docs", "boto3 (Python SDK) documentation", "https://boto3.amazonaws.com/v1/documentation/api/latest/index.html"],
+      ["Reference", "AWS Well-Architected Framework", "https://aws.amazon.com/architecture/well-architected/"],
+      ["Practice", "AWS Free Tier — build without billing", "https://aws.amazon.com/free/"]
+    ]
+  },
+  {
+    title: "Terraform (Infrastructure as Code)",
+    time: "1 week",
+    topics: ["providers", "state management", "modules", "plan/apply cycle", "provisioning AWS"],
+    why: "Hand-clicking AWS resources doesn't scale and isn't reproducible. This was missing even though AWS and Kubernetes both depend on repeatable infra.",
+    isNew: true,
+    resources: [
+      ["Docs", "HashiCorp — official Terraform tutorials", "https://developer.hashicorp.com/terraform/tutorials"],
+      ["Course", "KodeKloud — Terraform for Beginners (free)", "https://kodekloud.com/courses/terraform-for-beginners"],
+      ["Docs", "Terraform AWS provider registry", "https://registry.terraform.io/providers/hashicorp/aws/latest/docs"],
+      ["Reference", "Terraform Best Practices", "https://www.terraform-best-practices.com/"]
+    ]
+  },
+  {
+    title: "CI/CD",
+    time: "1 week",
+    topics: ["GitHub Actions", "build → test → deploy", "secrets in pipelines", "automated model deployment"],
+    why: "Automates everything you've built so far — tests, builds, and deployments run on every change.",
+    resources: [
+      ["Docs", "GitHub Actions documentation", "https://docs.github.com/en/actions"],
+      ["Practice", "GitHub Skills — automation exercises", "https://skills.github.com/"],
+      ["Course", "Made With ML — MLOps course", "https://madewithml.com/courses/mlops/"],
+      ["Course", "MLOps Zoomcamp — deployment modules", "https://github.com/DataTalksClub/mlops-zoomcamp"]
+    ]
+  },
+  {
+    title: "MLflow",
+    time: "1 week",
+    topics: ["experiment tracking", "model registry", "model packaging", "reproducible runs"],
+    why: "Tracks and versions the models you trained back in the ML fundamentals stage.",
+    resources: [
+      ["Docs", "MLflow — getting started", "https://mlflow.org/docs/latest/getting-started/index.html"],
+      ["Docs", "MLflow tracking guide", "https://mlflow.org/docs/latest/tracking.html"],
+      ["Course", "MLOps Zoomcamp — experiment tracking module", "https://github.com/DataTalksClub/mlops-zoomcamp"],
+      ["Reference", "DataTalks.Club — Zoomcamp overview", "https://datatalks.club/blog/mlops-zoomcamp.html"]
+    ]
+  },
+  {
+    title: "Workflow Orchestration & Data Versioning",
+    time: "1–2 weeks",
+    topics: ["Airflow / Prefect", "DAGs & scheduling", "retries & idempotency", "retraining pipelines", "DVC for data/model versioning"],
+    why: "A second gap the first audit missed. Training and deployment aren't one-off scripts in production — they're scheduled, retried, and re-run pipelines. MLflow records what happened; orchestration is what makes it happen on a schedule. Skip or compress this if your data-engineering track already covers Airflow.",
+    isNew: true,
+    resources: [
+      ["Docs", "Apache Airflow documentation", "https://airflow.apache.org/docs/"],
+      ["Docs", "Prefect documentation", "https://docs.prefect.io/"],
+      ["Docs", "Dagster documentation", "https://docs.dagster.io/"],
+      ["Course", "MLOps Zoomcamp — orchestration module", "https://github.com/DataTalksClub/mlops-zoomcamp"],
+      ["Docs", "DVC — data & model versioning", "https://dvc.org/doc"]
+    ]
+  },
+  {
+    title: "Vector Databases / RAG",
+    time: "1–2 weeks",
+    topics: ["embeddings", "similarity search", "chunking strategies", "FAISS / Chroma / Pinecone", "RAG evaluation"],
+    why: "Near-mandatory for real LLM applications — retrieval is how most production LLM systems ground responses in real data. A clear gap given LLM serving is explicitly in the roadmap.",
+    isNew: true,
+    resources: [
+      ["Course", "freeCodeCamp — Production RAG with LangChain", "https://www.freecodecamp.org/news/production-rag-with-langchain-vector-databases/"],
+      ["Course", "DeepLearning.AI — LangChain for LLM apps", "https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/"],
+      ["Docs", "LangChain documentation", "https://python.langchain.com/"],
+      ["Docs", "Chroma — vector store docs", "https://docs.trychroma.com/"],
+      ["Reference", "FAISS wiki", "https://github.com/facebookresearch/faiss/wiki"],
+      ["Reference", "7 free courses to master RAG", "https://www.turingpost.com/p/7-free-courses-to-master-rag"]
+    ]
+  },
+  {
+    title: "Evaluation",
+    time: "1–2 weeks",
+    topics: ["offline vs online eval", "golden/eval datasets", "LLM-as-judge", "RAG metrics (groundedness, faithfulness)", "regression testing prompts", "human eval", "A/B testing", "benchmark contamination"],
+    why: "The biggest gap of all, and the one that makes everything else trustworthy. Without evals, MLflow tracks numbers that don't mean anything, CI/CD cheerfully automates deploying regressions, and you can't tell whether a fine-tune, a prompt change, or a new retriever actually helped. It sits here deliberately: after RAG so you have a real system to measure, and before serving because evals are what gate a deployment.",
+    isNew: true,
+    resources: [
+      ["Course", "Evidently AI — LLM evaluations course (free)", "https://www.evidentlyai.com/llm-evaluations-course"],
+      ["Reference", "Hamel Husain — LLM Evals FAQ (the practitioner's guide)", "https://hamel.dev/blog/posts/evals-faq/"],
+      ["Docs", "Ragas — RAG evaluation framework", "https://docs.ragas.io/"],
+      ["Docs", "DeepEval — LLM testing framework", "https://deepeval.com/"],
+      ["Docs", "Hugging Face — Evaluate library", "https://huggingface.co/docs/evaluate"],
+      ["Docs", "scikit-learn — classical model evaluation", "https://scikit-learn.org/stable/modules/model_evaluation.html"],
+      ["Reference", "Awesome LLM Evaluation — curated list", "https://alopatenko.github.io/LLMEvaluation/"],
+      ["Reference", "Evidently — 250 benchmarks & eval datasets", "https://www.evidentlyai.com/llm-evaluation-benchmarks-datasets"]
+    ]
+  },
+  {
+    title: "LLM Serving",
+    time: "2 weeks",
+    topics: ["vLLM", "TGI", "Ray Serve", "quantization", "continuous batching", "KV cache", "latency vs throughput"],
+    why: "Getting a trained or fine-tuned model to actually respond to requests efficiently at scale.",
+    resources: [
+      ["Course", "DeepLearning.AI — Fast & Efficient LLM Inference with vLLM", "https://www.deeplearning.ai/courses/fast-and-efficient-llm-inference-with-vllm"],
+      ["Docs", "vLLM documentation", "https://docs.vllm.ai/"],
+      ["Docs", "Hugging Face — Text Generation Inference", "https://huggingface.co/docs/text-generation-inference/"],
+      ["Docs", "Ray Serve", "https://docs.ray.io/en/latest/serve/index.html"],
+      ["Reference", "vLLM blog", "https://blog.vllm.ai/"]
+    ]
+  },
+  {
+    title: "Kubernetes",
+    time: "2–3 weeks",
+    topics: ["pods/deployments/services", "ConfigMaps & Secrets", "Helm", "autoscaling", "KServe for model serving"],
+    why: "Orchestrates containers at scale — where the Docker images from earlier actually run in production.",
+    resources: [
+      ["Docs", "Kubernetes official tutorials", "https://kubernetes.io/docs/tutorials/"],
+      ["Practice", "KillerCoda — free interactive K8s labs", "https://killercoda.com/kubernetes"],
+      ["Docs", "Helm documentation", "https://helm.sh/docs/"],
+      ["Reference", "CNCF — top Kubernetes resources for 2026", "https://www.cncf.io/blog/2026/01/19/top-28-kubernetes-resources-for-2026-learn-and-stay-up-to-date/"],
+      ["Reference", "KServe — model serving on K8s", "https://github.com/kserve/kserve"]
+    ]
+  },
+  {
+    title: "Observability",
+    time: "1 week",
+    topics: ["Prometheus + Grafana", "structured logging", "distributed tracing", "alerting", "model drift monitoring"],
+    why: "Once things run in production you need to know when they break — and ML systems fail silently through drift in ways ordinary software doesn't.",
+    resources: [
+      ["Docs", "Prometheus documentation", "https://prometheus.io/docs/introduction/overview/"],
+      ["Docs", "Grafana documentation", "https://grafana.com/docs/"],
+      ["Docs", "OpenTelemetry — tracing", "https://opentelemetry.io/docs/"],
+      ["Book", "Google SRE Book (free online)", "https://sre.google/sre-book/table-of-contents/"],
+      ["Reference", "Evidently — ML drift monitoring", "https://github.com/evidentlyai/evidently"]
+    ]
+  },
+  {
+    title: "Security & Secrets Management",
+    time: "1 week",
+    topics: ["IAM least privilege", "Secrets Manager / Vault", "dependency scanning", "LLM-specific risks"],
+    why: "Easy to skip early, expensive to retrofit later — credentials and access control touch every stage above.",
+    isNew: true,
+    resources: [
+      ["Docs", "AWS IAM best practices", "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"],
+      ["Docs", "HashiCorp Vault documentation", "https://developer.hashicorp.com/vault/docs"],
+      ["Docs", "AWS Secrets Manager", "https://docs.aws.amazon.com/secretsmanager/"],
+      ["Reference", "OWASP Top 10", "https://owasp.org/www-project-top-ten/"],
+      ["Reference", "OWASP Top 10 for LLM Applications", "https://owasp.org/www-project-top-10-for-large-language-model-applications/"]
+    ]
+  }
+];
+
+const container = document.getElementById('stages');
+let resTotal = 0;
+
+stages.forEach((s, i) => {
+  resTotal += s.resources.length;
+  const el = document.createElement('div');
+  el.className = 'stage';
+  el.innerHTML = `
+    <div class="stage-head">
+      <div class="checkbox">✓</div>
+      <div class="stage-title-row">
+        <div class="stage-num">Stage ${i + 1}${s.isNew ? '<span class="new-tag">new</span>' : ''}</div>
+        <div class="stage-title">${s.title}</div>
+      </div>
+      <div class="stage-time">${s.time}</div>
+      <div class="chevron">▶</div>
+    </div>
+    <div class="stage-body">
+      <h4>Why it's here</h4>
+      <p class="why">${s.why}</p>
+      <h4>Key topics</h4>
+      <div class="topics">${s.topics.map(t => `<span>${t}</span>`).join('')}</div>
+      <h4>Resources</h4>
+      <ul class="resources">
+        ${s.resources.map(r => `<li><span class="rtype">${r[0]}</span><a href="${r[2]}" target="_blank" rel="noopener">${r[1]}</a></li>`).join('')}
+      </ul>
+    </div>
+  `;
+  const head = el.querySelector('.stage-head');
+  const checkbox = el.querySelector('.checkbox');
+  head.addEventListener('click', (e) => {
+    if (e.target === checkbox) {
+      el.classList.toggle('done');
+      updateProgress();
+    } else {
+      el.classList.toggle('open');
+    }
+  });
+  container.appendChild(el);
+});
+
+document.getElementById('totalCount').textContent = stages.length;
+document.getElementById('stageCount').textContent = stages.length;
+document.getElementById('resCount').textContent = resTotal;
+
+function updateProgress() {
+  const done = document.querySelectorAll('.stage.done').length;
+  const pct = Math.round((done / stages.length) * 100);
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('fill').style.width = pct + '%';
+}
+</script>
+</body>
+</html>
